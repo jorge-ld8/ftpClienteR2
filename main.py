@@ -35,7 +35,7 @@ def menu(ftpcliente: FTP):
         if resp == "1":
             print("\tCONTENIDO")
             for name, facts in ftpcliente.mlsd(facts=["size", "type"]):
-                print("\t\t" + name + ": " + facts["type"] + " " + facts["size"] + "KB")
+                print("\t\t" + name + ": " + facts["type"] + " " + facts["size"] + "B")
         elif resp == "2":
             nombreArchivo = input("Introduzca el nombre del archivo que desea obtener: ")
             try:
@@ -49,12 +49,13 @@ def menu(ftpcliente: FTP):
             nombreArchivo = input("Introduzca el nombre del archivo que desea subir: ")
             try:
                 f = open(nombreArchivo, "rb")
-                ftpcliente.storlines(f'STOU {nombreArchivo}', f)
+                ftpcliente.storlines(f'STOR {nombreArchivo}', f)
                 print("Archivo subido exitosamente!")
                 f.close()
             except IOError:
                 print("Ha ocurrido un error. Intente nuevamente")
-            # ftpcliente.
+            except error_perm as e:
+                print(e)
         elif resp == "4":
             nombreArchivo = input("Introduzca el nombre del archivo que desea borrar: ")
             try:
@@ -129,9 +130,9 @@ def main():
                     # loop en el que consiste la aplicacion
                     menu(ftp)
                     return
-                except error_perm:
+                except error_perm as e:
                     cont += 1
-                    print("Login failed")
+                    print(e)
                 except EOFError:
                     print("Numero maximo de logins alcanzado")
         except ConnectionRefusedError:
