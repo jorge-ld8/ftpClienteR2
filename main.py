@@ -1,4 +1,5 @@
 import os.path
+import sys
 from ftplib import FTP, error_perm, all_errors, error_reply
 from os import path as p
 from time import sleep
@@ -134,15 +135,18 @@ def main():
                 except EOFError:
                     print("Numero maximo de logins alcanzado")
         except ConnectionRefusedError:
-            print("El servidor no está activo. Intente nuevamente.")
-            contfallos += 1
-            if contfallos == 5:
-                break
-            sleep(4)
+            while True:
+                print("El servidor no está activo. Tratando reconexion")
+                contfallos += 1
+                if contfallos == 3:
+                    break
+                sleep(4)
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    main()
-
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit()
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
