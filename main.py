@@ -3,6 +3,7 @@ import sys
 from ftplib import FTP, error_perm, all_errors, error_reply
 from os import path as p
 from time import sleep
+from functools import partial
 
 
 def uniquify(path):
@@ -16,6 +17,11 @@ def uniquify(path):
 
     return returnPath
 
+
+def procesarArchivo(archivo, nombre):
+    with open(uniquify(nombre), "w") as f:
+        print(archivo)
+        f.write(archivo)
 
 def menu(ftpcliente: FTP):
     # Darle la bienvenida al usuario
@@ -37,11 +43,11 @@ def menu(ftpcliente: FTP):
             for name, facts in ftpcliente.mlsd(facts=["size", "type"]):
                 print("\t\t" + name + ": " + facts["type"] + " " + facts["size"] + "B")
         elif resp == "2":
+            def remove_last_line_from_string(s):
+                return
             nombreArchivo = input("Introduzca el nombre del archivo que desea obtener: ")
             try:
-                wantedFile = ftpcliente.retrlines(f'RETR {nombreArchivo}')
-                with open(uniquify(nombreArchivo), "w") as f:
-                    f.write(wantedFile)
+                wantedFile = ftpcliente.retrlines(f'RETR {nombreArchivo}', lambda x: procesarArchivo(x, nombreArchivo))
                 print(f'Archivo guardado exitosamente. Lo puede encontrar en {os.getcwd()}')
             except error_perm:
                 print("\tArchivo no conseguido. Intente nuevamente")
